@@ -92,7 +92,7 @@
       "type": "string"
     },
     "networkTrafficLogTypes":{
-      "value": []
+      "type": "array"
     },    
     "tagsByResource": {
       "type": "Object"
