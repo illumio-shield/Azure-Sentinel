@@ -25,6 +25,7 @@ from ..CommonCode.constants import (
     FLOW_EVENTS,
     AUDIT_EVENTS,
 )
+from ..CommonCode.helper import skip_processing_file, check_if_script_runs_too_long
 
 
 # Defining the S3 Client object based on AWS Credentials
@@ -43,16 +44,6 @@ def _create_s3_client():
         aws_secret_access_key=AWS_SECRET,
         config=boto_config,
     )
-
-
-def fileToBeFiltered(file_path):
-    if LOGS_TO_CONSUME == ALL_TRAFFIC:
-        return False
-
-    if "auditable" in file_path:
-        return FLOW_EVENTS in LOGS_TO_CONSUME
-    else:
-        return AUDIT_EVENTS in LOGS_TO_CONSUME
 
 
 async def _generate_sentinel_connectors(session):
@@ -107,7 +98,7 @@ async def main(msg: func.QueueMessage):
             file_size = obj.get("file_size", 0)
             accumulated_file_size += file_size
 
-            if fileToBeFiltered(link):
+            if skip_processing_file(link):
                 continue
 
             sqs_ids_seen_so_far += 1
